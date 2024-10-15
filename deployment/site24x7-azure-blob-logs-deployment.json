@@ -32,7 +32,14 @@
                 "description" : "For other than block blobs input False"
             },
             "type": "string"
+        },
+        "ContainerName":{
+            "metadata": {
+                "description" : "Enter the container name from which you wish to collect logs"
+            },
+            "type": "string"
         }
+        
     },
     
     "variables": {
@@ -147,8 +154,11 @@
                         {
                             "name": "Tail",
                             "value": "[parameters('Tail')]"
-                        }
-                        
+                        },
+                        {
+                            "name": "ContainerName",
+                            "value": "[parameters('ContainerName')]"
+                        }                  
                     ],
                     "linuxFxVersion": "[variables('linuxFxVersion')]",
                     "alwaysOn": true
