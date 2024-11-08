@@ -41,7 +41,9 @@ def json_log_parser(lines_read):
         try:
             formatted_line = {}
             if serviceName == "NETWORKSECURITYGROUPS":
-                lines,size= nsg_parser.processData(event_obj,log_line_filter)
+                lines,size= nsgParser.processData(event_obj,log_line_filter)
+            elif serviceName == "NETWORKWATCHER":
+                lines,size= vnetParser.processData(event_obj,log_line_filter)
             else:
                 if type(event_obj) == bytes:
                     event_obj = ast.literal_eval(event_obj.decode())

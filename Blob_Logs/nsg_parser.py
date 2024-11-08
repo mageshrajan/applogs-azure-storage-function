@@ -10,10 +10,10 @@ field_mapping = {
         "TrafficDestination": 6,
         "TrafficAction": 7,
         "Priority": 8,
-        "BytesSent": 9,
-        "BytesReceived": 10,
-        "PacketsSent": 11,
-        "PacketsReceived": 12,
+        "PacketsSent": 9,
+        "BytesSent": 10,
+        "PacketsReceived": 11,
+        "BytesReceived": 12,
     }
     
 def processData(dataList,log_line_filter):

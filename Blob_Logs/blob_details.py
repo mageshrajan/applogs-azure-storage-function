@@ -1,16 +1,19 @@
 import re
 
 class BlobDetails:
-    def __init__(self, blob_path,container_name):
+    def __init__(self, blob_path):
+        self.vNet = False
         if blob_path:
-            pattern = re.compile(r".*SUBSCRIPTIONS/(?P<subId>[^/]+)/RESOURCEGROUPS/(?P<resourceGroup>[^/]+)/PROVIDERS/(?P<resourceNamespace>[^/]+)/(?P<serviceGroup>[^/]+)/(?P<serviceName>[^/]+)/y=(?P<blobYear>[^/]+)/m=(?P<blobMonth>[^/]+)/d=(?P<blobDay>[^/]+)/h=(?P<blobHour>[^/]+)/m=(?P<blobMinute>[^/]+)(?:/macAddress=(?P<mac>[^/]+))?.*")
+            if "flowLogResourceID=" in blob_path:
+                self.vNet = True
+                pattern = re.compile(".*flowLogResourceID=/(?P<subId>[^/_]+)_(?P<resourceGroup>[^/]+)/(?P<serviceGroup>\w+)_(?P<Location>\w+)_(?P<flowLogName>[^/]+)/y=(?P<blobYear>[^/]+)/m=(?P<blobMonth>[^/]+)/d=(?P<blobDay>[^/]+)/h=(?P<blobHour>[^/]+)/m=(?P<blobMinute>[^/]+)(?:/macAddress=(?P<mac>[^/]+))?.*")
+            else:
+                pattern = re.compile(".*SUBSCRIPTIONS/(?P<subId>[^/]+)/RESOURCEGROUPS/(?P<resourceGroup>[^/]+)/PROVIDERS/(?P<resourceNamespace>[^/]+)/(?P<serviceGroup>[^/]+)/(?P<serviceName>[^/]+)/y=(?P<blobYear>[^/]+)/m=(?P<blobMonth>[^/]+)/d=(?P<blobDay>[^/]+)/h=(?P<blobHour>[^/]+)/m=(?P<blobMinute>[^/]+)(?:/macAddress=(?P<mac>[^/]+))?.*")
             match = pattern.match(blob_path)
             if match:
                 self.subscription_id = match.group("subId")
                 self.resource_group = match.group("resourceGroup")
-                self.resource_namespace = match.group("resourceNamespace")
                 self.service_group = match.group("serviceGroup")
-                self.service_name = match.group("serviceName")
                 self.year = match.group("blobYear")
                 self.month = match.group("blobMonth")
                 self.day = match.group("blobDay")
@@ -18,13 +21,22 @@ class BlobDetails:
                 self.minute = match.group("blobMinute")
                 if match.group("mac") != None:
                     self.mac = match.group("mac")
-            self.container_name = container_name
+                if self.vNet:
+                    self.Location = match.group("Location")
+                    self.flowLogName = match.group("flowLogName")
+                else:
+                    self.resource_namespace = match.group("resourceNamespace")
+                    self.service_name = match.group("serviceName")
+
+
 
     def get_partition_key(self):
-        if hasattr(self,"mac"):
+        if self.vNet:
+            return f"{self.subscription_id.replace('-', '_')}_{self.resource_group}_{self.flowLogName}_{self.mac}"
+        elif hasattr(self,"mac"):
             return f"{self.subscription_id.replace('-', '_')}_{self.resource_group}_{self.service_name}_{self.mac}"
         else:
-            return f"{self.subscription_id.replace('-', '_')}_{self.resource_group}_{self.container_name}"
+            return f"{self.subscription_id.replace('-', '_')}_{self.resource_group}_{self.service_name}"
     def get_row_key(self):
         return f"{self.year}_{self.month}_{self.day}_{self.hour}_{self.minute}"
 

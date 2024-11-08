@@ -30,7 +30,7 @@ def main(myblob: func.InputStream):
         azure_logger.setLevel(logging.WARNING)
         container_name, blob_name = myblob.name.split('/', 1)
         if tail:
-            blobDetails = blob_details.BlobDetails(str(myblob.name),container_name)
+            blobDetails = blob_details.BlobDetails(str(myblob.name))
             serviceName = blobDetails.service_group
             check_pointDB = check_point.check_point(table_connection_string)
             checkpoint = check_pointDB.get_check_point(blobDetails)
